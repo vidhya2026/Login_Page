@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UserLogin.Models;
+using UserLogin.Models.ViewModels;
 
 namespace UserLogin.Data
 {
@@ -10,7 +11,7 @@ namespace UserLogin.Data
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }
-
+        
         protected AppDbContext()
         {
         }

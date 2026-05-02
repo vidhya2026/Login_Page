@@ -4,6 +4,6 @@ namespace UserLogin.Models
 {
     public class Users : IdentityUser
     {
-        public String Name { get; set; }
+        public String FullName { get; set; }
     }
 }
