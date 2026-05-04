@@ -8,16 +8,14 @@ namespace UserLogin.Models.ViewModels
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password is Required")]
+        [Required(ErrorMessage = "New Password is Required")]
         [DataType(DataType.Password)]
-        [Display(Name ="New Password")]
+        [StringLength(40, MinimumLength = 8)]
         public string NewPassword { get; set; }
-        [StringLength(40, MinimumLength = 8, ErrorMessage = "The {0} must be {2} & at max{1} character")]
-        [Compare("ConfirmNewPassword", ErrorMessage = "Password doesn't Match")]
-
-        public string Password { get; set; }
 
         [Required(ErrorMessage = "Confirm password is Required")]
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "Password doesn't Match")]
         public string ConfirmNewPassword { get; set; }
     }
 }

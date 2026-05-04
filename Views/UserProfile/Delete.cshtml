@@ -1,0 +1,228 @@
+﻿@model UserLogin.Models.Userprofiles
+
+@{
+    ViewData["Title"] = "Delete User";
+}
+
+<style>
+    .delete-card {
+        max-width: 520px;
+        margin: 60px auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        text-align: center;
+    }
+
+    /* Red warning circle icon at the top */
+    .delete-icon {
+        width: 72px;
+        height: 72px;
+        background: #fef2f2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.2rem;
+        /* Red ring around the circle */
+        border: 2px solid #fca5a5;
+    }
+
+    .delete-card h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+
+    .delete-card p {
+        color: #666;
+        font-size: 0.97rem;
+        margin-bottom: 6px;
+    }
+
+    /* Box that shows user details before confirming delete */
+    .user-preview {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin: 24px 0;
+        text-align: left;
+    }
+
+    .user-preview-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f5;
+        font-size: 0.93rem;
+        color: #333;
+    }
+
+        .user-preview-row:last-child {
+            border-bottom: none;
+        }
+
+    .user-preview-label {
+        font-weight: 600;
+        color: #888;
+        min-width: 70px;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+    }
+
+    /* Profile photo shown in the preview box */
+    .user-preview-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e94560;
+        display: block;
+        margin: 0 auto 14px;
+    }
+
+    .user-preview-avatar-placeholder {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #e94560;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 14px;
+    }
+
+    /* Warning text above the buttons */
+    .warning-text {
+        color: #ef4444;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 12px;
+    }
+
+    /* Red confirm-delete button */
+    .btn-delete-confirm {
+        flex: 1;
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        padding: 13px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .btn-delete-confirm:hover {
+            background: #dc2626;
+        }
+
+    /* Cancel — takes user back to the list without deleting */
+    .btn-cancel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 13px;
+        border-radius: 8px;
+        border: 2px solid #1a1a2e;
+        color: #1a1a2e;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background: #1a1a2e;
+            color: #fff;
+        }
+</style>
+
+<div class="delete-card">
+
+    @* Warning icon *@
+    <div class="delete-icon">&#9888;&#65039;</div>
+
+    <h2>Delete User?</h2>
+    <p>You are about to permanently delete this user.</p>
+    <p>This action <strong>cannot be undone.</strong></p>
+
+    @* Show the user's details so the admin can confirm they are deleting the right person *@
+    <div class="user-preview">
+
+        @* Avatar photo or initial letter placeholder *@
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath" class="user-preview-avatar" alt="@Model.Name" />
+        }
+        else
+        {
+            <div class="user-preview-avatar-placeholder">@Model.Name[0]</div>
+        }
+
+        <div class="user-preview-row">
+            <span class="user-preview-label">Name</span>
+            <span>@Model.Name</span>
+        </div>
+        <div class="user-preview-row">
+            <span class="user-preview-label">Age</span>
+            <span>@Model.Age</span>
+        </div>
+        <div class="user-preview-row">
+            <span class="user-preview-label">Gender</span>
+            <span>@Model.Gender</span>
+        </div>
+        <div class="user-preview-row">
+            <span class="user-preview-label">Email</span>
+            <span>@Model.Email</span>
+        </div>
+        <div class="user-preview-row">
+            <span class="user-preview-label">Phone</span>
+            <span>@Model.Phone</span>
+        </div>
+    </div>
+
+    <p class="warning-text">&#128683; Once deleted, this record cannot be recovered.</p>
+
+    @*
+        The delete action MUST be a POST, not a GET.
+        If delete were a GET link, a browser prefetch or a malicious image tag
+        on another site could accidentally delete the record.
+        [ValidateAntiForgeryToken] on the controller checks the hidden token
+        that asp-action injects automatically, which prevents CSRF attacks.
+    *@
+    <form asp-controller="UserProfile" asp-action="Delete"
+          asp-route-id="@Model.Id" method="post">
+
+        @* AntiForgeryToken adds a hidden field __RequestVerificationToken.
+           The controller's [ValidateAntiForgeryToken] attribute checks this
+           to make sure the POST came from our own page, not from another site. *@
+        @Html.AntiForgeryToken()
+
+        <div class="btn-row">
+            <button type="submit" class="btn-delete-confirm">
+                &#128465; Yes, Delete
+            </button>
+
+            @* Cancel goes back to the list — nothing is deleted *@
+            <a asp-controller="UserProfile" asp-action="Index" class="btn-cancel">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>

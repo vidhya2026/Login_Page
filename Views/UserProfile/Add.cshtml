@@ -1,0 +1,295 @@
+﻿@*
+  Views/UserProfile/Add.cshtml   (also used as Edit.cshtml with same code)
+  Shared form for adding or editing a user profile.
+  enctype="multipart/form-data" is REQUIRED whenever the form includes a file upload.
+  Without it, IFormFile will always be null on the server.
+*@
+
+@model UserLogin.Models.ViewModels.UserProfileViewModel
+
+@{
+    // Determine page title dynamically: "Edit User" when Id > 0, "Add User" otherwise.
+    // This avoids duplicating the entire view file for two nearly-identical pages.
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit User" : "Add User";
+}
+
+<style>
+    /* ── Form card ─────────────────────────────────────── */
+    .form-card {
+        max-width: 640px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .form-card h2 {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 28px;
+    }
+
+    /* ── Field groups ──────────────────────────────────── */
+    .field-group {
+        margin-bottom: 20px;
+    }
+
+    .field-group label {
+        display: block;
+        font-size: 0.87rem;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* All text / select inputs share this style */
+    .field-group input[type="text"],
+    .field-group input[type="number"],
+    .field-group input[type="email"],
+    .field-group input[type="tel"],
+    .field-group select {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.97rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        background: #fafafa;
+    }
+
+    /* Blue ring on focus — standard accessibility signal */
+    .field-group input:focus,
+    .field-group select:focus {
+        border-color: #0f3460;
+        box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.12);
+        background: #fff;
+    }
+
+    /* ── File upload area ──────────────────────────────── */
+    .file-upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .file-upload-area:hover { border-color: #e94560; }
+
+    /* Hides the native file input; the label acts as the clickable zone */
+    .file-upload-area input[type="file"] {
+        display: none;
+    }
+
+    .file-hint {
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 6px;
+    }
+
+    /* ── Image preview ─────────────────────────────────── */
+    #imagePreview {
+        max-width: 140px;
+        max-height: 140px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid #e94560;
+        display: none;         /* hidden until a file is selected */
+        margin: 12px auto 0;
+    }
+
+    /* ── Validation messages ───────────────────────────── */
+    .text-danger { color: #ef4444; font-size: 0.83rem; margin-top: 4px; display: block; }
+
+    .validation-summary-errors ul {
+        padding-left: 18px;
+        margin: 0 0 16px;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 12px 16px 12px 32px;
+    }
+
+    .validation-summary-errors li { color: #ef4444; font-size: 0.88rem; }
+
+    /* ── Two column layout for narrow fields ───────────── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Submit + Back buttons ─────────────────────────── */
+    .form-actions { display: flex; gap: 12px; margin-top: 28px; }
+
+    .btn-submit {
+        flex: 1;
+        background: #e94560;
+        color: #fff;
+        border: none;
+        padding: 13px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover { background: #c62a47; }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 13px 24px;
+        border-radius: 8px;
+        border: 2px solid #1a1a2e;
+        color: #1a1a2e;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-back:hover { background: #1a1a2e; color: #fff; }
+</style>
+
+<div class="form-card">
+    <h2>@(isEdit ? "✏️ Edit User" : "➕ Add New User")</h2>
+
+ 
+    <form asp-action="@(isEdit ? "Edit" : "Add")" method="post" enctype="multipart/form-data">
+
+        @* Hidden field carries the Id so the controller knows which DB row to update *@
+        <input type="hidden" asp-for="Id" />
+
+        @* Shows model-level errors (e.g. duplicate email) at the top of the form *@
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        @* <!-- Name --> *@
+        <div class="field-group">
+            <label asp-for="Name">Full Name</label>
+            <input asp-for="Name" type="text" placeholder="e.g. Jane Smith" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        @* <!-- Age + Gender on same row to save vertical space --> *@
+        <div class="two-col">
+            <div class="field-group">
+                <label asp-for="Age">Age</label>
+                <input asp-for="Age" type="number" min="1" max="120" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="field-group">
+                <label asp-for="Gender">Gender</label>
+              
+                <div class="gender-radio-group">
+                    <label class="radio-option">
+                        <input type="radio" asp-for="Gender" value="Male" />
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" asp-for="Gender" value="Female" />
+                        <span>Female</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" asp-for="Gender" value="Other" />
+                        <span>Other</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" asp-for="Gender" value="Prefer not to say" />
+                        <span>Prefer not to say</span>
+                    </label>
+                </div>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+        </div>
+
+      @*   <!-- Email --> *@
+        <div class="field-group">
+            <label asp-for="Email">Email Address</label>
+            <input asp-for="Email" type="email" placeholder="e.g. jane@@example.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        @* <!-- Phone --> *@
+        <div class="field-group">
+            <label asp-for="Phone">Phone Number</label>
+            <input asp-for="Phone" type="tel" placeholder="e.g. +91 98765 43210" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+      @*   <!-- Image upload --> *@
+        <div class="field-group">
+            <label>Profile Photo</label>
+
+           
+            <label class="file-upload-area" for="ImageFile">
+                <div style="font-size:2rem;">📁</div>
+                <div style="font-weight:600;margin-top:6px;">Click to upload photo</div>
+                <div class="file-hint">JPEG, PNG or WebP · max 3 MB · no GIFs</div>
+                <input type="file" id="ImageFile" name="ImageFile"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       onchange="previewImage(this)" />
+            </label>
+
+            
+            @if (isEdit && !string.IsNullOrEmpty(Model.ExistingImagePath))
+            {
+                <p style="font-size:0.82rem;color:#888;margin-top:8px;">
+                    Current photo (upload a new one to replace it):
+                </p>
+                <img src="@Model.ExistingImagePath" style="max-width:100px;border-radius:8px;" />
+            }
+
+            @* Preview of newly selected file — shown by JS below *@
+            <img id="imagePreview" src="" alt="Preview" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+        </div>
+
+        @* <!-- Actions --> *@
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                @(isEdit ? "Save Changes" : "Add User")
+            </button>
+            <a asp-controller="UserProfile" asp-action="Index" class="btn-back">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        @* jQuery Unobtrusive Validation wires up the [Required], [Range] etc.
+           attributes on the ViewModel to client-side validation without extra JS code. *@
+        await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
+    }
+
+    <script>
+        // previewImage — called by the file input's onchange event.
+        // Reads the selected file locally using FileReader (no server round-trip)
+        // and displays it in the <img id="imagePreview"> element.
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+
+            if (input.files && input.files[0]) {
+                // FileReader reads the file as a Data URL (base64 string)
+                const reader = new FileReader();
+
+                // onload fires after the file is fully read.
+                // We set the src so the browser renders the local image immediately.
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';  // reveal the hidden <img>
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                // User cancelled the picker — hide the preview.
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+}

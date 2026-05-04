@@ -15,6 +15,8 @@ namespace UserLogin.Data
         protected AppDbContext()
         {
         }
+
+        public DbSet<Userprofiles> UserProfiles { get; set; }
     }
 
 }

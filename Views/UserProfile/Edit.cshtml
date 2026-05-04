@@ -1,0 +1,437 @@
+﻿@model UserLogin.Models.ViewModels.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<style>
+    .form-card {
+        max-width: 640px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+        .form-card h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 28px;
+        }
+
+    .field-group {
+        margin-bottom: 20px;
+    }
+
+        .field-group label {
+            display: block;
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .field-group input[type="text"],
+        .field-group input[type="number"],
+        .field-group input[type="email"],
+        .field-group input[type="tel"],
+        .field-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.97rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            background: #fafafa;
+            box-sizing: border-box;
+        }
+
+            .field-group input:focus,
+            .field-group select:focus {
+                border-color: #0f3460;
+                box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.12);
+                background: #fff;
+            }
+
+    .file-upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        display: block;
+    }
+
+        .file-upload-area:hover {
+            border-color: #e94560;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+    .file-hint {
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 6px;
+    }
+
+    #imagePreview {
+        max-width: 140px;
+        max-height: 140px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid #e94560;
+        display: none;
+        margin: 12px auto 0;
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.83rem;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .validation-summary-errors ul {
+        margin: 0 0 16px;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 12px 16px 12px 32px;
+        list-style: disc;
+    }
+
+    .validation-summary-errors li {
+        color: #ef4444;
+        font-size: 0.88rem;
+    }
+
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: #f59e0b;
+        color: #fff;
+        border: none;
+        padding: 13px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .btn-submit:hover {
+            background: #d97706;
+        }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 13px 24px;
+        border-radius: 8px;
+        border: 2px solid #1a1a2e;
+        color: #1a1a2e;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+    .char-counter {
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 3px;
+        display: block;
+    }
+
+        .char-counter.over {
+            color: #ef4444;
+        }
+
+    .current-photo-box {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .current-photo-box img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #e94560;
+        }
+
+    .current-photo-label {
+        font-size: 0.82rem;
+        color: #666;
+    }
+</style>
+
+<div class="form-card">
+    <h2>&#x270F;&#xFE0F; Edit User</h2>
+
+    @*
+        asp-action="Edit" posts to the Edit action in UserProfileController.
+        enctype="multipart/form-data" is required because the form contains a file input.
+        novalidate turns off browser native tooltips so our jQuery messages show cleanly.
+    *@
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editUserForm" novalidate>
+
+        @*
+            Hidden field — carries the Id of the record being edited back to the server.
+            Without this, the controller cannot find which row to UPDATE in the database.
+        *@
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        @* ── NAME ──────────────────────────────────────────────── *@
+        <div class="field-group">
+            <label asp-for="Name">Full Name</label>
+            @*
+                asp-for="Name" pre-fills the input with Model.Name (the existing value
+                loaded from the database in the Edit GET action).
+                The keypress handler below blocks digits and symbols in real time.
+            *@
+            <input asp-for="Name"
+                   type="text"
+                   id="Name"
+                   placeholder="e.g. Jane Smith"
+                   autocomplete="off" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        @* ── AGE + GENDER ───────────────────────────────────────── *@
+        <div class="two-col">
+            <div class="field-group">
+                <label asp-for="Age">Age</label>
+                @*
+                    asp-for="Age" pre-fills the field with the user's existing age.
+                    min/max provide HTML5 range hints; [Range(1,120)] on the ViewModel
+                    enforces the real rule server-side.
+                *@
+                <input asp-for="Age"
+                       type="number"
+                       id="Age"
+                       min="1"
+                       max="120"
+                       placeholder="e.g. 25" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+
+            <div class="field-group">
+                <label asp-for="Gender">Gender</label>
+                @*
+                    asp-for="Gender" automatically selects the option that matches
+                    the existing value (e.g. "Male") — no manual selected="" needed.
+                *@
+                <select asp-for="Gender" id="Gender">
+                    <option value="">-- Select --</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+        </div>
+
+        @* ── EMAIL ─────────────────────────────────────────────── *@
+        <div class="field-group">
+            <label asp-for="Email">Email Address</label>
+            <input asp-for="Email"
+                   type="email"
+                   id="Email"
+                   placeholder="e.g. jane@@example.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        @* ── PHONE ──────────────────────────────────────────────── *@
+        <div class="field-group">
+            <label asp-for="Phone">Phone Number</label>
+            @*
+                maxlength="10" is the HTML hard cap — the browser will not accept more.
+                The keypress handler below blocks non-digit keys.
+                inputmode="numeric" shows a number pad on mobile.
+            *@
+            <input asp-for="Phone"
+                   type="tel"
+                   id="Phone"
+                   placeholder="e.g. 9876543210"
+                   maxlength="10"
+                   inputmode="numeric" />
+            <span id="phoneCounter" class="char-counter">0 / 10 digits</span>
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        @* ── IMAGE UPLOAD ────────────────────────────────────────── *@
+        <div class="field-group">
+            <label>Profile Photo</label>
+
+            @*
+                Show the existing saved photo so the user knows what is currently stored.
+                If they do not pick a new file, the controller keeps the existing ImagePath.
+                Model.ExistingImagePath is set in the Edit GET action from user.ImagePath.
+            *@
+            @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+            {
+                <div class="current-photo-box">
+                    <img src="@Model.ExistingImagePath" alt="Current photo" />
+                    <span class="current-photo-label">
+                        Current photo — upload a new one below to replace it
+                    </span>
+                </div>
+            }
+
+            <label class="file-upload-area" for="ImageFile" style="margin-top:10px;">
+                <div style="font-size:2rem;">&#128193;</div>
+                <div style="font-weight:600;margin-top:6px;">Click to upload new photo</div>
+                <div class="file-hint">JPEG or PNG only &middot; max 3 MB &middot; no GIFs</div>
+                <input type="file"
+                       id="ImageFile"
+                       name="ImageFile"
+                       accept=".jpg,.jpeg,.png"
+                       onchange="previewAndValidateImage(this)" />
+            </label>
+
+            <img id="imagePreview" src="" alt="Preview" />
+            <span id="imageError" class="text-danger"></span>
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Save Changes</button>
+            <a asp-controller="UserProfile" asp-action="Index" class="btn-back">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
+    }
+
+    <script>
+        // ── NAME: block digits and special characters ───────────────────────────
+        document.getElementById('Name').addEventListener('keypress', function (e) {
+            var char = String.fromCharCode(e.charCode);
+            if (!/^[a-zA-Z ]$/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('Name').addEventListener('paste', function (e) {
+            e.preventDefault();
+            var pasted = (e.clipboardData || window.clipboardData).getData('text');
+            var clean = pasted.replace(/[^a-zA-Z ]/g, '');
+            document.execCommand('insertText', false, clean);
+        });
+
+        // ── AGE: block non-numeric keys (e, +, - are allowed by type=number by default) ──
+        document.getElementById('Age').addEventListener('keypress', function (e) {
+            var char = String.fromCharCode(e.charCode);
+            if (!/^[0-9]$/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        // ── PHONE: digits only, max 10 ──────────────────────────────────────────
+        var phoneInput = document.getElementById('Phone');
+        var phoneCounter = document.getElementById('phoneCounter');
+
+        // Initialise counter with existing value length (important on Edit page)
+        phoneCounter.textContent = phoneInput.value.length + ' / 10 digits';
+        updatePhoneCounter();
+
+        phoneInput.addEventListener('keypress', function (e) {
+            var char = String.fromCharCode(e.charCode);
+            if (!/^[0-9]$/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        phoneInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            var pasted = (e.clipboardData || window.clipboardData).getData('text');
+            var digitsOnly = pasted.replace(/\D/g, '').substring(0, 10);
+            document.execCommand('insertText', false, digitsOnly);
+        });
+
+        phoneInput.addEventListener('input', updatePhoneCounter);
+
+        function updatePhoneCounter() {
+            var len = phoneInput.value.length;
+            phoneCounter.textContent = len + ' / 10 digits';
+            phoneCounter.style.color = (len === 10) ? '#22c55e' : '#ef4444';
+        }
+
+        // ── IMAGE validation ────────────────────────────────────────────────────
+        function previewAndValidateImage(input) {
+            var errorSpan = document.getElementById('imageError');
+            var preview = document.getElementById('imagePreview');
+            errorSpan.textContent = '';
+            preview.style.display = 'none';
+
+            if (!input.files || !input.files[0]) return;
+
+            var file = input.files[0];
+            var maxBytes = 3 * 1024 * 1024;
+
+            if (file.size > maxBytes) {
+                errorSpan.textContent = 'File is too large. Maximum size is 3 MB.';
+                input.value = '';
+                return;
+            }
+
+            if (file.type === 'image/gif') {
+                errorSpan.textContent = 'GIF images are not allowed.';
+                input.value = '';
+                return;
+            }
+
+            var allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowed.includes(file.type)) {
+                errorSpan.textContent = 'Only JPEG and PNG images are allowed.';
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+}

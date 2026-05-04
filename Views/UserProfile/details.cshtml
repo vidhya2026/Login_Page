@@ -1,0 +1,204 @@
+﻿@*
+  Views/UserProfile/Details.cshtml
+  Read-only profile card showing all fields for a single user.
+  @model is the plain domain model (not the ViewModel) because no form is needed here.
+*@
+
+@model UserLogin.Models.Userprofiles
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<style>
+    /* ── Profile card ──────────────────────────────────── */
+    .profile-card {
+        max-width: 560px;
+        margin: 48px auto;
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;       /* clips the header gradient at the card corners */
+        box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Gradient header behind the avatar photo */
+    .profile-header {
+        background: linear-gradient(135deg, #1a1a2e, #0f3460);
+        padding: 36px 32px 20px;
+        text-align: center;
+    }
+
+    /* ── Avatar ─────────────────────────────────────────── */
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        /* White ring + shadow separates the photo from the dark header */
+        border: 4px solid #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Initials placeholder when no photo is stored */
+    .profile-avatar-placeholder {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: #e94560;
+        color: #fff;
+        font-size: 2.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 4px solid #fff;
+    }
+
+    .profile-name {
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 14px 0 4px;
+    }
+
+    .profile-gender-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.15);
+        color: #e2e8f0;
+        font-size: 0.78rem;
+        padding: 3px 12px;
+        border-radius: 20px;
+    }
+
+    /* ── Info rows ──────────────────────────────────────── */
+    .profile-body { padding: 28px 32px; }
+
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f5;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-icon {
+        font-size: 1.2rem;
+        width: 32px;
+        flex-shrink: 0;
+    }
+
+    .info-content {}
+
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        font-size: 0.97rem;
+        color: #1a1a2e;
+        font-weight: 500;
+    }
+
+    /* ── Footer buttons ─────────────────────────────────── */
+    .profile-footer {
+        display: flex;
+        gap: 12px;
+        padding: 0 32px 28px;
+    }
+
+    .btn-edit-profile {
+        flex: 1;
+        text-align: center;
+        background: #0f3460;
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-edit-profile:hover { background: #1a4a80; color: #fff; }
+
+    .btn-back-list {
+        flex: 1;
+        text-align: center;
+        border: 2px solid #0f3460;
+        color: #0f3460;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-back-list:hover { background: #0f3460; color: #fff; }
+</style>
+
+<div class="profile-card">
+
+     @* Header with photo + name  *@
+    <div class="profile-header">
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            
+            <img src="@Model.ImagePath" class="profile-avatar" alt="@Model.Name" />
+        }
+        else
+        {
+            @* Show first letter of the name as a coloured circle avatar *@
+            <div class="profile-avatar-placeholder">@Model.Name[0]</div>
+        }
+        <div class="profile-name">@Model.Name</div>
+        <span class="profile-gender-badge">@Model.Gender</span>
+    </div>
+
+    @* <!-- Info rows --> *@
+    <div class="profile-body">
+        <div class="info-row">
+            <div class="info-icon">🎂</div>
+            <div class="info-content">
+                <span class="info-label">Age</span>
+                <span class="info-value">@Model.Age years old</span>
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-icon">✉️</div>
+            <div class="info-content">
+                <span class="info-label">Email</span>
+                <span class="info-value">@Model.Email</span>
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-icon">📞</div>
+            <div class="info-content">
+                <span class="info-label">Phone</span>
+                <span class="info-value">@Model.Phone</span>
+            </div>
+        </div>
+        @* <div class="info-row">
+            <div class="info-icon">🪪</div>
+            <div class="info-content">
+                <span class="info-label">User ID</span>
+                <span class="info-value">#@Model.Id</span>
+            </div>
+        </div> *@
+    </div>
+
+    @* <!-- Footer action buttons --> *@
+    <div class="profile-footer">
+       
+        <a asp-controller="UserProfile" asp-action="Edit"
+           asp-route-id="@Model.Id" class="btn-edit-profile">✏️ Edit</a>
+        <a asp-controller="UserProfile" asp-action="Index" class="btn-back-list">← Back to List</a>
+    </div>
+</div>

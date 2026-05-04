@@ -1,8 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@* 
+  Views/Home/Index.cshtml
+  This is the landing page after login.
+  We add a "User Details" button that navigates to UserProfile/Index (the listing page).
+  Layout = null means we use the default _Layout.cshtml set in _ViewStart.cshtml.
+*@
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<style>
+    /* ── Dashboard hero card ─────────────────────────────── */
+    .dashboard-hero {
+        /* Subtle gradient background gives depth without being distracting */
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        border-radius: 20px;
+        padding: 60px 40px;
+        color: #fff;
+        text-align: center;
+        margin: 40px auto;
+        max-width: 700px;
+        /* Box shadow creates the "floating card" effect */
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .dashboard-hero h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        /* Gradient text using background-clip trick — works in all modern browsers */
+        background: linear-gradient(90deg, #e94560, #0f3460);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-hero p {
+        color: #a8b2d8;
+        font-size: 1.1rem;
+        margin-bottom: 36px;
+    }
+
+    /* ── Action button ───────────────────────────────────── */
+    .btn-user-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #e94560, #c62a47);
+        color: #fff;
+        padding: 14px 36px;
+        border-radius: 50px;          /* Pill shape */
+        font-size: 1.05rem;
+        font-weight: 600;
+        text-decoration: none;
+        /* Smooth transition for hover scale + shadow */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+    }
+
+    .btn-user-details:hover {
+        /* Lifts the button on hover — gives tactile feedback */
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(233, 69, 96, 0.55);
+        color: #fff;
+    }
+
+    /* ── Stats strip (decorative) ────────────────────────── */
+    .stats-strip {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin: 30px auto 0;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+        color: #a8b2d8;
+    }
+
+    .stat-item span {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #e94560;
+    }
+</style>
+
+<div class="dashboard-hero">
+    <h1>Welcome to Dashboard</h1>
+    <p>Manage your users, view profiles, and keep everything organised from one place.</p>
+
+        <a asp-controller="UserProfile" asp-action="Index" class="btn-user-details">
+            <!-- SVG icon inline so no external dependency -->
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Show User Details
+        </a>
+    </div>

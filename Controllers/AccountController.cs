@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserLogin.Models;
 using UserLogin.Models.ViewModels;
@@ -15,13 +16,18 @@ namespace UserLogin.Controllers
             this.signInManager = signInManager;
             this.userManager = userManager;
         }
-
+        [AllowAnonymous]
         public IActionResult Login()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -39,14 +45,19 @@ namespace UserLogin.Controllers
             }
             return View(model);
         }
-
+        [AllowAnonymous]
         public IActionResult Register()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
 
         [HttpPost]
+        [AllowAnonymous]
 
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -75,13 +86,14 @@ namespace UserLogin.Controllers
             }
             return View(model);
         }
-
+        [AllowAnonymous]
         public IActionResult VerifyEmail()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> VerifyEmail(VerifyEmailViewModel model)
         {
             if (ModelState.IsValid)
@@ -102,6 +114,7 @@ namespace UserLogin.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         public IActionResult ChangePassword(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -111,6 +124,7 @@ namespace UserLogin.Controllers
             return View(new ChangePasswordViewModel { Email = username });
         }
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (ModelState.IsValid)
@@ -143,9 +157,19 @@ namespace UserLogin.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "something went wrong, try again");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+
                 return View(model);
             }
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

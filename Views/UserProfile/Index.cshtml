@@ -1,0 +1,227 @@
+﻿@*
+  Views/UserProfile/Index.cshtml
+  Listing page — shows every user in a styled table with Details / Edit / Delete actions.
+  @model is List<UserLogin.Models.UserProfile> so we can @foreach over rows.
+*@
+
+@model List<UserLogin.Models.Userprofiles>
+
+@{
+    ViewData["Title"] = "User List";
+}
+
+<style>
+    /* ── Page wrapper ─────────────────────────────────── */
+    .up-page {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Top bar: title + Add button ─────────────────── */
+    .up-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+    }
+
+    .up-topbar h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    /* "Add User" button — accent colour so it draws the eye */
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #e94560;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-add:hover { background: #c62a47; color: #fff; }
+
+    /* ── Card wrapping the table ──────────────────────── */
+    .up-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        overflow: hidden;   /* clips table corners inside the rounded card */
+    }
+
+    /* ── Table ────────────────────────────────────────── */
+    .up-table { width: 100%; border-collapse: collapse; }
+
+    .up-table thead {
+        /* Dark header row makes columns easy to scan */
+        background: #1a1a2e;
+        color: #fff;
+    }
+
+    .up-table th {
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 0.82rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .up-table tbody tr {
+        border-bottom: 1px solid #f0f0f5;
+        /* Subtle hover highlight so the user knows which row they are on */
+        transition: background 0.15s;
+    }
+
+    .up-table tbody tr:hover { background: #fafafa; }
+
+    .up-table td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    /* ── Avatar thumbnail ─────────────────────────────── */
+    .up-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;         /* Circle crop */
+        object-fit: cover;          /* Fills circle without squashing the image */
+        border: 2px solid #e94560;
+    }
+
+    /* Placeholder shown when no image path is stored */
+    .up-avatar-placeholder {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #e94560;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    /* ── Action buttons inside each row ──────────────── */
+    .btn-action {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-right: 4px;
+        transition: opacity 0.15s;
+    }
+
+    .btn-action:hover { opacity: 0.8; }
+    .btn-details { background: #0f3460; color: #fff; }
+    .btn-edit    { background: #f59e0b; color: #fff; }
+    .btn-delete  { background: #ef4444; color: #fff; border: none; cursor: pointer; }
+
+    /* ── Empty state ──────────────────────────────────── */
+    .up-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: #888;
+    }
+</style>
+
+<div class="up-page">
+
+    <!-- Top bar: heading + Add User button -->
+    <div class="up-topbar">
+        <h2>User Management</h2>
+
+        
+        <a asp-controller="UserProfile" asp-action="Add" class="btn-add">
+            &#43; Add User
+        </a>
+    </div>
+
+    <div class="up-card">
+        <table class="up-table">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*
+                  @if (Model.Count == 0) shows a friendly message instead of an empty table.
+                  We use colspan="7" so the cell spans all columns.
+                *@
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="up-empty">
+                                <p style="font-size:1.1rem;">No users found.</p>
+                                <a asp-controller="UserProfile" asp-action="Add" class="btn-add">Add your first user</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @* Iterate every UserProfile row returned from the DB *@
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <!-- Photo column: show image or initial letter placeholder -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(user.ImagePath))
+                                {
+                                    <img src="@user.ImagePath" class="up-avatar" alt="@user.Name" />
+                                }
+                                else
+                                {
+                                    @* Show first letter of the name as a coloured circle *@
+                                    <div class="up-avatar-placeholder">@user.Name[0]</div>
+                                }
+                            </td>
+                            <td>@user.Name</td>
+                            <td>@user.Age</td>
+                            <td>@user.Gender</td>
+                            <td>@user.Email</td>
+                            <td>@user.Phone</td>
+                            <td>
+                                <!-- Details link -->
+                                <a asp-controller="UserProfile" asp-action="Details"
+                                   asp-route-id="@user.Id" class="btn-action btn-details">Details</a>
+
+                                <!-- Edit link -->
+                                <a asp-controller="UserProfile" asp-action="Edit"
+                                   asp-route-id="@user.Id" class="btn-action btn-edit">Edit</a>
+
+                              
+                                <form asp-controller="UserProfile" asp-action="Delete"
+                                      asp-route-id="@user.Id" method="post" style="display:inline"
+                                      onsubmit="return confirm('Delete @user.Name? This cannot be undone.')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
